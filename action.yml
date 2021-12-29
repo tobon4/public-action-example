@@ -1,0 +1,16 @@
+# action.yml
+name: 'Plintarna'
+description: 'Gjuta plintar'
+inputs:
+  who: 
+    description: 'Who does it'
+    required: true
+    default: 'Jocke'
+outputs:
+  statement: 
+    description: 'Who did it?'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.who }}
