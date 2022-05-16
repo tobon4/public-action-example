@@ -1,0 +1,10 @@
+name: 'Test workflow call'  
+on:
+  workflow_call:
+  
+jobs:
+  running:
+    runs-on: ubuntu-20.04
+    steps:
+
+      - run: echo ok
