@@ -2,73 +2,80 @@ apiVersion: scaffolder.backstage.io/v1beta3
 # https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
 kind: Template
 metadata:
-  name: example-nodejs-template
-  title: Example Node.js Template
-  description: An example template for the scaffolder that creates a simple Node.js service
+  name: createAkamaiAccount
+  title: Create New Akamai Upload Account
+  description: Create New Akamai Upload Account
 spec:
-  owner: user:guest
+  owner: tobon4
   type: service
 
   # These parameters are used to generate the input form in the frontend, and are
   # used to gather input data for the execution of the template.
   parameters:
-    - title: Fill in some steps
+    - title: Name of upload account
       required:
         - name
       properties:
         name:
           title: Name
           type: string
-          description: Unique name of the component
+          description: The name of the Akamai upload account that will be created
           ui:autofocus: true
           ui:options:
             rows: 5
-    - title: Choose a location
+    - title: Is Production Account? 
       required:
-        - repoUrl
+        - answer
       properties:
-        repoUrl:
-          title: Repository Location
+        name:
+          title: Answer
           type: string
-          ui:field: RepoUrlPicker
+          description: Type "yes" if this is an Akamai production upload account
+          ui:autofocus: true
           ui:options:
-            allowedHosts:
-              - github.com
+            rows: 5
+    - title: Subdirectory restriction 1
+      required:
+        - path1
+      properties:
+        name:
+          title: Path
+          type: string
+          description: The first subdirectory restriction; for example, "/homesmart" or "/sofas"
+          ui:autofocus: true
+          ui:options:
+            rows: 5
+    - title: Subdirectory restriction 2
+      required:
+        - path2
+      properties:
+        name:
+          title: Path
+          type: string
+          description: The second subdirectory restriction; for example, "/homesmart" or "/sofas" - if applicable
+          ui:autofocus: true
+          ui:options:
+            rows: 5
 
   # These steps are executed in the scaffolder backend, using data that we gathered
   # via the parameters above.
   steps:
     # Each step executes an action, in this case one templates files into the working directory.
-    - id: fetch-base
-      name: Fetch Base
-      action: fetch:template
-      input:
-        url: ./content
-        values:
-          name: ${{ parameters.name }}
+    
+  - action: github:actions:dispatch
+    id: trigger-build
+    name: Trigger Build
+    input:
+      repoUrl: 'github.com?repo=tobon4-workflow-dispatch-test-1&owner=tobon4'
+      workflowId: 'dispatch.yaml'
+      branchOrTagName: 'master'
 
-    # This step publishes the contents of the working directory to GitHub.
-    - id: publish
-      name: Publish
-      action: publish:github
-      input:
-        allowedHosts: ['github.com']
-        description: This is ${{ parameters.name }}
-        repoUrl: ${{ parameters.repoUrl }}
-
-    # The final step is to register our new component in the catalog.
-    - id: register
-      name: Register
-      action: catalog:register
-      input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: '/catalog-info.yaml'
 
   # Outputs are displayed to the user after a successful execution of the template.
-  output:
-    links:
-      - title: Repository
-        url: ${{ steps.publish.output.remoteUrl }}
-      - title: Open in catalog
-        icon: catalog
-        entityRef: ${{ steps.register.output.entityRef }}
+  # output:
+  #   links:
+  #     - title: Repository
+  #       url: ${{ steps.publish.output.remoteUrl }}
+  #     - title: Open in catalog
+  #       icon: catalog
+  #       entityRef: ${{ steps.register.output.entityRef }}
